@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane fx:id="root" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="768.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="gui.Controller">
+    <center>
+        <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+            <center>
+                <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                    <bottom>
+                        <Label fx:id="bottomLabel" alignment="CENTER" contentDisplay="CENTER" text="The distance calculated: " BorderPane.alignment="CENTER">
+                            <font>
+                                <Font size="14.0" />
+                            </font>
+                            <BorderPane.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </BorderPane.margin>
+                            <padding>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </padding>
+                        </Label>
+                    </bottom>
+                    <center>
+                        <BorderPane fx:id="middle" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER" />
+                    </center>
+                </BorderPane>
+            </center>
+            <bottom>
+                <BorderPane BorderPane.alignment="CENTER">
+                    <right>
+                        <VBox alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                            <children>
+                                <Button fx:id="newListingsButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#newListings" styleClass="button-not-pink" text="Randomise" textAlignment="CENTER">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                    </padding>
+                                </Button>
+                                <Button fx:id="runButton" alignment="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#runButton" styleClass="button-not-pink" text="Run!" textAlignment="CENTER">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="5.0" right="15.0" top="5.0" />
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                    </padding>
+                                </Button>
+                                <Button fx:id="saveToFileButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#saveToFile" text="Save to file" textAlignment="CENTER">
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                    <VBox.margin>
+                                        <Insets bottom="15.0" left="5.0" right="15.0" top="5.0" />
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                    </padding>
+                                </Button>
+                            </children>
+                        </VBox>
+                    </right>
+                    <left>
+                        <VBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                            <children>
+                                <Label alignment="CENTER" text="Choose the algorithms:">
+                                    <padding>
+                                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                                    </padding>
+                                    <VBox.margin>
+                                        <Insets left="15.0" right="5.0" top="5.0" />
+                                    </VBox.margin>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <ComboBox fx:id="methodChoice" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" onAction="#methodChosen" styleClass="button-not-pink">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="15.0" right="5.0" top="5.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                                <CheckBox fx:id="opt2CheckBox" alignment="CENTER" contentDisplay="CENTER" mnemonicParsing="false" onAction="#setSliderValues" text="2-optimisation">
+                                    <VBox.margin>
+                                        <Insets bottom="5.0" left="15.0" right="5.0" top="5.0" />
+                                    </VBox.margin>
+                                </CheckBox>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="Choose the distance">
+                                    <padding>
+                                        <Insets left="5.0" right="5.0" top="5.0" />
+                                    </padding>
+                                    <VBox.margin>
+                                        <Insets left="15.0" right="5.0" top="5.0" />
+                                    </VBox.margin>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <Label alignment="CENTER" contentDisplay="CENTER" text="calculating method">
+                                    <VBox.margin>
+                                        <Insets left="15.0" right="5.0" />
+                                    </VBox.margin>
+                                    <padding>
+                                        <Insets left="5.0" right="5.0" />
+                                    </padding>
+                                    <font>
+                                        <Font size="14.0" />
+                                    </font>
+                                </Label>
+                                <ComboBox fx:id="distanceMethodChoice" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308">
+                                    <VBox.margin>
+                                        <Insets bottom="15.0" left="15.0" right="5.0" top="5.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                            </children>
+                            <opaqueInsets>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </opaqueInsets>
+                        </VBox>
+                    </left>
+                    <center>
+                        <Slider fx:id="slider" max="150.0" min="3.0" minorTickCount="5" showTickLabels="true" showTickMarks="true" BorderPane.alignment="CENTER">
+                            <BorderPane.margin>
+                                <Insets left="10.0" right="10.0" />
+                            </BorderPane.margin></Slider>
+                    </center>
+                </BorderPane>
+            </bottom>
+            <top>
+                <VBox alignment="TOP_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                    <children>
+                        <Label alignment="CENTER" contentDisplay="CENTER" style="&#10;" text="What if you still don't know which property is the best? Visit them using the shortest path!" textAlignment="CENTER" wrapText="false">
+                            <font>
+                                <Font size="18.0" />
+                            </font>
+                            <VBox.margin>
+                                <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                            </VBox.margin>
+                        </Label>
+                        <Separator prefWidth="200.0" />
+                    </children>
+                </VBox>
+            </top>
+        </BorderPane>
+    </center>
+</BorderPane>
