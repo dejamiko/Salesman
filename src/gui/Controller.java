@@ -1,8 +1,8 @@
 package gui;
 
 import graphs.Graphable;
-import handout.AirbnbData;
-import handout.AirbnbListing;
+import data.handout.AirbnbData;
+import data.handout.AirbnbListing;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;

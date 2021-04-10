@@ -1,7 +1,7 @@
 package salesman;
 
 import graphs.Graphable;
-import handout.AirbnbListing;
+import graphs.Vertex;
 
 import java.util.*;
 
@@ -51,6 +51,30 @@ public class Distances {
         // We want the whole cycle
         ans += getDistance(route.get(0), route.get(route.size() - 1));
         return ans;
+    }
+
+
+    public double[][] getDistanceMatrix(ArrayList<Vertex> vertexList) {
+        double[][] distances = new double[vertexList.size()][vertexList.size()];
+        for (int i = 0; i < distances.length; ++i)
+            for (int j = i + 1; j < distances[i].length; ++j) {
+                distances[i][j] = getDistance(vertexList.get(i), vertexList.get(j));
+                distances[j][i] = distances[i][j]; //symmetry
+            }
+        return distances;
+    }
+
+    public double getDistance(Vertex vertex1, Vertex vertex2) {
+        if (vertex1.equals(vertex2))
+            return 0.0;
+
+        Set<Graphable> set = new HashSet<>(Arrays.asList(vertex1.getContents(), vertex2.getContents()));
+        Double distance = pairwiseDistances.get(set);
+        if (distance == null) {
+            distance = calculateDistance(vertex1.getContents(), vertex2.getContents());
+            pairwiseDistances.put(set, distance);
+        }
+        return distance;
     }
 
     /**

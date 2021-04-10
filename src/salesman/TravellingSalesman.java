@@ -2,7 +2,8 @@ package salesman;
 
 import graphs.Graph;
 import graphs.Graphable;
-import handout.AirbnbListing;
+import graphs.SalesmanGraph;
+import graphs.Vertex;
 
 import java.util.*;
 
@@ -43,7 +44,7 @@ public class TravellingSalesman {
      * of computer science. I implemented a few different algorithms to solve it.
      *
      * @param graphables The list of places.
-     * @param method   The method of calculating the route.
+     * @param method     The method of calculating the route.
      * @return The list of places in an order in which they should be visited.
      */
     public List<Graphable> solveTravellingSalesmanProblem(List<Graphable> graphables, TSPCalculationMethod method) {
@@ -70,7 +71,7 @@ public class TravellingSalesman {
      * @param graphables The list of places.
      * @return The list of places in a correct order.
      */
-    private List<Graphable> bruteForceApproach(List<Graphable> graphables) {
+    public List<Graphable> bruteForceApproach(List<Graphable> graphables) {
         if (graphables == null || graphables.size() == 0)
             throw new IllegalArgumentException("Brute force had an empty or null input.");
 
@@ -129,14 +130,12 @@ public class TravellingSalesman {
      * https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm
      *
      * @param graphables The list of places to get the path from.
-     * @param starting The index of the starting place.
+     * @param starting   The index of the starting place.
      * @return The list of the places as nearest neighbours.
      */
-    private List<Graphable> nearestNeighbourAlgorithm(List<Graphable> graphables, int starting) {
+    public List<Graphable> nearestNeighbourAlgorithm(List<Graphable> graphables, int starting) {
         if (graphables == null || graphables.size() == 0)
             throw new IllegalArgumentException("nearest neighbour had an empty or null input.");
-
-        Graph graph = new Graph(graphables, distances);
 
         List<Graphable> ans = new ArrayList<>();
         ans.add(graphables.remove(starting));
@@ -157,6 +156,57 @@ public class TravellingSalesman {
         return ans;
     }
 
+    public Graph nearestNeighbourAlgorithmGraph(List<Graphable> graphables, int starting) {
+        Graph graph = new Graph(graphables, distances);
+        Vertex current = graph.getIsolatedVertex(starting);
+        Vertex first = current;
+        while (graph.getIsolatedVertices().size() > 0) {
+            Vertex next = graph.getClosestIsolated(current);
+            graph.addEdge(current, next);
+            current = next;
+        }
+        graph.addEdge(current, first);
+        return graph;
+    }
+
+    public Graph improvedNearestNeighbouringGraph(List<Graphable> graphables) {
+        Graph best = new Graph(graphables, distances);
+        Graph graph;
+
+        double currMin = Double.MAX_VALUE;
+        for (int i = 0; i < graphables.size(); ++i) {
+            graph = nearestNeighbourAlgorithmGraph(graphables, i);
+            if (graph.getDist() < currMin) {
+                currMin = graph.getDist();
+                best = new Graph(graph);
+            }
+        }
+
+        return best;
+    }
+
+    public Graph christofides(List<Graphable> graphables) {
+        SalesmanGraph graph = new SalesmanGraph(graphables, distances);
+
+        graph.createMinimalSpanningTree();
+        graph.createPerfectMatching();
+        graph.createEulerCircuit();
+        graph.createHamiltonianCycle();
+
+        return graph;
+    }
+
+    public Graph christofidesDouble(List<Graphable> graphables) {
+        SalesmanGraph graph = new SalesmanGraph(graphables, distances);
+
+        graph.createMinimalSpanningTree();
+        graph.doubleAllEdges();
+        graph.createEulerCircuit();
+        graph.createHamiltonianCycle();
+
+        return graph;
+    }
+
     /**
      * A heuristic method of solving the TSP. It builds on the Nearest
      * Neighbour algorithm.
@@ -167,7 +217,7 @@ public class TravellingSalesman {
      * @param graphables The list of places to visit.
      * @return The list of places in an order in which they should be visited.
      */
-    private List<Graphable> improvedNearestNeighbouring(List<Graphable> graphables) {
+    public List<Graphable> improvedNearestNeighbouring(List<Graphable> graphables) {
         if (graphables == null || graphables.size() == 0)
             throw new IllegalArgumentException("improvedNN had an empty or null input.");
 
@@ -259,7 +309,7 @@ public class TravellingSalesman {
      * @param graphables The list of places for which to solve the TSP.
      * @return The route as calculated by this algorithm.
      */
-    private List<Graphable> christofidesNN(List<Graphable> graphables) {
+    public List<Graphable> christofidesNN(List<Graphable> graphables) {
         if (graphables == null || graphables.size() == 0)
             throw new IllegalArgumentException("christofides had an empty or null input.");
 
@@ -283,7 +333,7 @@ public class TravellingSalesman {
      * @param graphables The list of places for which to solve the TSP.
      * @return The route as calculated by this algorithm.
      */
-    private List<Graphable> christofidesDoubleEdges(List<Graphable> graphables) {
+    public List<Graphable> christofidesDoubleEdges(List<Graphable> graphables) {
         if (graphables == null || graphables.size() == 0)
             throw new IllegalArgumentException("christofidesDoubleEdges had an empty or null input.");
 
@@ -304,7 +354,7 @@ public class TravellingSalesman {
      * @param graphables The graph in which the tree is to be found.
      * @return The minimum spanning tree.
      */
-    private List<Graphable> getMinimalTree(List<Graphable> graphables) {
+    public List<Graphable> getMinimalTree(List<Graphable> graphables) {
         if (graphables == null || graphables.size() == 0)
             throw new IllegalArgumentException("minimal tree had an empty or null input.");
 
@@ -440,8 +490,9 @@ public class TravellingSalesman {
             edges.put(matched.get(i + 1), list);
         }
 
-        for (Map.Entry<Graphable, List<Graphable>> entry : edges.entrySet())
+        for (Map.Entry<Graphable, List<Graphable>> entry : edges.entrySet()) {
             entry.setValue(new ArrayList<>(new HashSet<>(entry.getValue())));
+        }
 
         currPath.push(matched.get(0));
         Graphable current = matched.get(0);
