@@ -15,9 +15,9 @@ public class SalesmanGraph extends Graph {
     private double min;
 
     /**
-     * A constructor for the graph with given input vertices.
+     * A constructor for the graph with given input locations.
      *
-     * @param input The input vertices.
+     * @param input The input locations.
      * @param distances The distances to be used.
      */
     public SalesmanGraph(List<Location> input, Distances distances) {
@@ -43,9 +43,9 @@ public class SalesmanGraph extends Graph {
     }
 
     /**
-     * A constructor for the graph with given vertices and edges.
+     * A constructor for the graph with given locations and edges.
      *
-     * @param input The input vertices.
+     * @param input The input locations.
      * @param distances The distances to be used.
      * @param edges The input edges.
      */

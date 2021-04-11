@@ -17,9 +17,9 @@ public class Graph {
     private double dist;
 
     /**
-     * A constructor for the graph with given input vertices.
+     * A constructor for the graph with given input locations.
      *
-     * @param input The input vertices.
+     * @param input The input locations.
      * @param distances The distances to be used.
      */
     public Graph(List<Location> input, Distances distances) {
@@ -55,9 +55,9 @@ public class Graph {
     }
 
     /**
-     * A constructor for the graph with given vertices and edges.
+     * A constructor for the graph with given locations and edges.
      *
-     * @param input The input vertices.
+     * @param input The input locations.
      * @param distances The distances to be used.
      * @param edges The input edges.
      */
@@ -103,8 +103,8 @@ public class Graph {
     /**
      * Add an edge to the graph.
      *
-     * @param location1 The first graphable to be added.
-     * @param location2 The second graphable to be added.
+     * @param location1 The first location to be added.
+     * @param location2 The second location to be added.
      */
     public void addEdge(Location location1, Location location2) {
         Vertex first = new Vertex(location1);
