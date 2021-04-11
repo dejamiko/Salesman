@@ -1,6 +1,6 @@
 package data.handout;
 
-import graphs.Graphable;
+import graphs.Location;
 
 /**
  * Represents one listing of a property for rental on Airbnb.
@@ -9,7 +9,7 @@ import graphs.Graphable;
  *
  * @author Handout, edited by Nicole Lehchevska 20041914
  */
-public class AirbnbListing extends Graphable {
+public class AirbnbListing extends Location {
     /**
      * The id and name of the individual property
      */

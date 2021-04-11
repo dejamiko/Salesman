@@ -1,9 +1,6 @@
 package salesman;
 
-import graphs.Graph;
-import graphs.Graphable;
-import graphs.SalesmanGraph;
-import graphs.Vertex;
+import graphs.Location;
 
 import java.util.*;
 
@@ -15,7 +12,7 @@ import java.util.*;
  */
 public class TravellingSalesman {
     private final Distances distances;
-    private List<Graphable> best;
+    private List<Location> best;
     private double min;
 
     /**
@@ -43,24 +40,24 @@ public class TravellingSalesman {
      * It's an NP-hard problem, well known and useful in many branches
      * of computer science. I implemented a few different algorithms to solve it.
      *
-     * @param graphables The list of places.
+     * @param locations The list of places.
      * @param method     The method of calculating the route.
      * @return The list of places in an order in which they should be visited.
      */
-    public List<Graphable> solveTravellingSalesmanProblem(List<Graphable> graphables, TSPCalculationMethod method) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> solveTravellingSalesmanProblem(List<Location> locations, TSPCalculationMethod method) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("Travelling salesman solve problem had an empty or null input.");
 
         Random rand = new Random();
 
         switch (method) {
-            case NEAREST_NEIGHBOUR -> graphables = nearestNeighbourAlgorithm(graphables, rand.nextInt(graphables.size()));
-            case IMPROVED_NEAREST_NEIGHBOUR -> graphables = improvedNearestNeighbouring(graphables);
-            case CHRISTOFIDES_MATCHING -> graphables = christofidesNN(graphables);
-            case BRUTE_FORCE -> graphables = bruteForceApproach(graphables);
-            case CHRISTOFIDES_DOUBLE_EDGES -> graphables = christofidesDoubleEdges(graphables);
+            case NEAREST_NEIGHBOUR -> locations = nearestNeighbourAlgorithm(locations, rand.nextInt(locations.size()));
+            case IMPROVED_NEAREST_NEIGHBOUR -> locations = improvedNearestNeighbouring(locations);
+            case CHRISTOFIDES_MATCHING -> locations = christofidesNN(locations);
+            case BRUTE_FORCE -> locations = bruteForceApproach(locations);
+            case CHRISTOFIDES_DOUBLE_EDGES -> locations = christofidesDoubleEdges(locations);
         }
-        return graphables;
+        return locations;
     }
 
     /**
@@ -68,22 +65,22 @@ public class TravellingSalesman {
      * order with which they should be visited, for the total distance
      * to be minimal.
      *
-     * @param graphables The list of places.
+     * @param locations The list of places.
      * @return The list of places in a correct order.
      */
-    public List<Graphable> bruteForceApproach(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> bruteForceApproach(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("Brute force had an empty or null input.");
 
         // It's a very inefficient method, we don't want to wait
         // too long for the calculation to finish.
-        if (graphables.size() > 10)
-            return graphables;
+        if (locations.size() > 10)
+            return locations;
 
-        best = new ArrayList<>(graphables);
+        best = new ArrayList<>(locations);
         min = Double.MAX_VALUE;
 
-        bruteForceApproach(graphables.size(), graphables);
+        bruteForceApproach(locations.size(), locations);
 
         return best;
     }
@@ -97,26 +94,27 @@ public class TravellingSalesman {
      * https://en.wikipedia.org/wiki/Heap%27s_algorithm
      *
      * @param size The size of the part of the collection to be permuted.
+     * @param locations The list for which the algorithm is calculated.
      */
-    private void bruteForceApproach(int size, List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    private void bruteForceApproach(int size, List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("Brute force internal had an empty or null input.");
 
         if (size == 1) {
-            double curr = distances.getPathDistance(graphables);
+            double curr = distances.getPathDistance(locations);
             if (curr < min) {
                 min = curr;
-                best = new ArrayList<>(graphables);
+                best = new ArrayList<>(locations);
             }
         }
 
         for (int i = 0; i < size; ++i) {
-            bruteForceApproach(size - 1, graphables);
+            bruteForceApproach(size - 1, locations);
 
             if (size % 2 == 0) {
-                Collections.swap(graphables, i, size - 1);
+                Collections.swap(locations, i, size - 1);
             } else {
-                Collections.swap(graphables, 0, size - 1);
+                Collections.swap(locations, 0, size - 1);
             }
         }
     }
@@ -129,82 +127,31 @@ public class TravellingSalesman {
      * <p>
      * https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm
      *
-     * @param graphables The list of places to get the path from.
+     * @param locations The list of places to get the path from.
      * @param starting   The index of the starting place.
      * @return The list of the places as nearest neighbours.
      */
-    public List<Graphable> nearestNeighbourAlgorithm(List<Graphable> graphables, int starting) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> nearestNeighbourAlgorithm(List<Location> locations, int starting) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("nearest neighbour had an empty or null input.");
 
-        List<Graphable> ans = new ArrayList<>();
-        ans.add(graphables.remove(starting));
+        List<Location> ans = new ArrayList<>();
+        ans.add(locations.remove(starting));
 
-        while (graphables.size() > 0) {
+        while (locations.size() > 0) {
             int minInd = 0;
             double min = Double.MAX_VALUE;
-            for (int i = 0; i < graphables.size(); ++i) {
-                double dist = distances.getDistance(graphables.get(i), ans.get(ans.size() - 1));
+            for (int i = 0; i < locations.size(); ++i) {
+                double dist = distances.getDistance(locations.get(i), ans.get(ans.size() - 1));
                 if (dist < min) {
                     min = dist;
                     minInd = i;
                 }
             }
-            ans.add(graphables.remove(minInd));
+            ans.add(locations.remove(minInd));
         }
 
         return ans;
-    }
-
-    public Graph nearestNeighbourAlgorithmGraph(List<Graphable> graphables, int starting) {
-        Graph graph = new Graph(graphables, distances);
-        Vertex current = graph.getIsolatedVertex(starting);
-        Vertex first = current;
-        while (graph.getIsolatedVertices().size() > 0) {
-            Vertex next = graph.getClosestIsolated(current);
-            graph.addEdge(current, next);
-            current = next;
-        }
-        graph.addEdge(current, first);
-        return graph;
-    }
-
-    public Graph improvedNearestNeighbouringGraph(List<Graphable> graphables) {
-        Graph best = new Graph(graphables, distances);
-        Graph graph;
-
-        double currMin = Double.MAX_VALUE;
-        for (int i = 0; i < graphables.size(); ++i) {
-            graph = nearestNeighbourAlgorithmGraph(graphables, i);
-            if (graph.getDist() < currMin) {
-                currMin = graph.getDist();
-                best = new Graph(graph);
-            }
-        }
-
-        return best;
-    }
-
-    public Graph christofides(List<Graphable> graphables) {
-        SalesmanGraph graph = new SalesmanGraph(graphables, distances);
-
-        graph.createMinimalSpanningTree();
-        graph.createPerfectMatching();
-        graph.createEulerCircuit();
-        graph.createHamiltonianCycle();
-
-        return graph;
-    }
-
-    public Graph christofidesDouble(List<Graphable> graphables) {
-        SalesmanGraph graph = new SalesmanGraph(graphables, distances);
-
-        graph.createMinimalSpanningTree();
-        graph.doubleAllEdges();
-        graph.createEulerCircuit();
-        graph.createHamiltonianCycle();
-
-        return graph;
     }
 
     /**
@@ -214,20 +161,20 @@ public class TravellingSalesman {
      * Run the Nearest Neighbour algorithm for all possible
      * starting places. Keep the best one in list best.
      *
-     * @param graphables The list of places to visit.
+     * @param locations The list of places to visit.
      * @return The list of places in an order in which they should be visited.
      */
-    public List<Graphable> improvedNearestNeighbouring(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> improvedNearestNeighbouring(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("improvedNN had an empty or null input.");
 
         double currMin = Double.MAX_VALUE;
-        List<Graphable> best = new ArrayList<>();
+        List<Location> best = new ArrayList<>();
 
-        for (int i = 0; i < graphables.size(); ++i) {
-            List<Graphable> copy = new ArrayList<>(graphables);
+        for (int i = 0; i < locations.size(); ++i) {
+            List<Location> copy = new ArrayList<>(locations);
 
-            List<Graphable> candidate = nearestNeighbourAlgorithm(copy, i);
+            List<Location> candidate = nearestNeighbourAlgorithm(copy, i);
 
             if (distances.getPathDistance(candidate) < currMin) {
                 currMin = distances.getPathDistance(candidate);
@@ -245,27 +192,27 @@ public class TravellingSalesman {
      * <p>
      * https://en.wikipedia.org/wiki/2-opt
      *
-     * @param graphables The list of places to visit.
+     * @param locations The list of places to visit.
      * @return The list of places in an order in which they should be visited.
      */
-    public List<Graphable> opt2(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> opt2(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("2opt had an empty or null input.");
 
-        List<Graphable> ans = new ArrayList<>(graphables);
+        List<Location> ans = new ArrayList<>(locations);
         boolean changed = true;
-        double bestDistance = distances.getPathDistance(graphables);
+        double bestDistance = distances.getPathDistance(locations);
         while (changed) {
             changed = false;
-            for (int i = 1; i < graphables.size() - 1; ++i) {
-                for (int j = i + 1; j < graphables.size() - 1; ++j) {
+            for (int i = 1; i < locations.size() - 1; ++i) {
+                for (int j = i + 1; j < locations.size() - 1; ++j) {
 
-                    graphables = opt2Swap(graphables, i, j);
+                    locations = opt2Swap(locations, i, j);
 
-                    double newDistance = distances.getPathDistance(graphables);
+                    double newDistance = distances.getPathDistance(locations);
                     if (newDistance < bestDistance) {
                         bestDistance = newDistance;
-                        ans = new ArrayList<>(graphables);
+                        ans = new ArrayList<>(locations);
                         changed = true;
                     }
                 }
@@ -282,14 +229,14 @@ public class TravellingSalesman {
      * @param j     The end index.
      * @return The route after the swap.
      */
-    private List<Graphable> opt2Swap(List<Graphable> route, int i, int j) {
+    private List<Location> opt2Swap(List<Location> route, int i, int j) {
         if (route == null || route.size() == 0)
             throw new IllegalArgumentException("2opt swap had an empty or null input.");
         if (i < 0 || i >= route.size() || j < 0 || j >= route.size() || i >= j)
             throw new IllegalArgumentException("2opt swap had a bad index input.");
 
-        List<Graphable> ans = new ArrayList<>(route.subList(0, i));
-        List<Graphable> temp = new ArrayList<>(route.subList(i, j + 1));
+        List<Location> ans = new ArrayList<>(route.subList(0, i));
+        List<Location> temp = new ArrayList<>(route.subList(i, j + 1));
         Collections.reverse(temp);
         ans.addAll(temp);
         ans.addAll(route.subList(j + 1, route.size()));
@@ -306,18 +253,18 @@ public class TravellingSalesman {
      * <p>
      * https://en.wikipedia.org/wiki/Christofides_algorithm
      *
-     * @param graphables The list of places for which to solve the TSP.
+     * @param locations The list of places for which to solve the TSP.
      * @return The route as calculated by this algorithm.
      */
-    public List<Graphable> christofidesNN(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> christofidesNN(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("christofides had an empty or null input.");
 
-        List<Graphable> listingsList = new ArrayList<>(graphables);
-        List<Graphable> tree = getMinimalTree(listingsList);
-        List<Graphable> odd = getOddVertices(tree);
-        List<Graphable> match = perfectMatchingGreedy(tree, odd);
-        List<Graphable> circuit = getEulerCircuit(match);
+        List<Location> listingsList = new ArrayList<>(locations);
+        List<Location> tree = getMinimalTree(listingsList);
+        List<Location> odd = getOddVertices(tree);
+        List<Location> match = perfectMatchingGreedy(tree, odd);
+        List<Location> circuit = getEulerCircuit(match);
 
         return getHamiltonianCycle(circuit);
     }
@@ -330,17 +277,17 @@ public class TravellingSalesman {
      * <p>
      * https://en.wikipedia.org/wiki/Travelling_salesman_problem#Heuristic_and_approximation_algorithms
      *
-     * @param graphables The list of places for which to solve the TSP.
+     * @param locations The list of places for which to solve the TSP.
      * @return The route as calculated by this algorithm.
      */
-    public List<Graphable> christofidesDoubleEdges(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> christofidesDoubleEdges(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("christofidesDoubleEdges had an empty or null input.");
 
-        List<Graphable> listingList = new ArrayList<>(graphables);
-        List<Graphable> tree = getMinimalTree(listingList);
-        List<Graphable> match = doubleAllEdges(tree);
-        List<Graphable> circuit = getEulerCircuit(match);
+        List<Location> listingList = new ArrayList<>(locations);
+        List<Location> tree = getMinimalTree(listingList);
+        List<Location> match = doubleAllEdges(tree);
+        List<Location> circuit = getEulerCircuit(match);
 
         return getHamiltonianCycle(circuit);
     }
@@ -351,19 +298,19 @@ public class TravellingSalesman {
      * <p>
      * https://en.wikipedia.org/wiki/Prim%27s_algorithm
      *
-     * @param graphables The graph in which the tree is to be found.
+     * @param locations The graph in which the tree is to be found.
      * @return The minimum spanning tree.
      */
-    public List<Graphable> getMinimalTree(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public List<Location> getMinimalTree(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("minimal tree had an empty or null input.");
 
         int noEdges = 0;
-        int noVertex = graphables.size();
-        double[][] distanceMatrix = distances.getDistanceMatrix(graphables);
+        int noVertex = locations.size();
+        double[][] distanceMatrix = distances.getDistanceMatrix(locations);
         boolean[] selected = new boolean[noVertex];
         selected[0] = true;
-        List<Graphable> ans = new ArrayList<>();
+        List<Location> ans = new ArrayList<>();
 
         while (noEdges < noVertex - 1) {
             double min = Double.MAX_VALUE;
@@ -379,8 +326,8 @@ public class TravellingSalesman {
                                 y = j;
                             }
 
-            ans.add(graphables.get(x));
-            ans.add(graphables.get(y));
+            ans.add(locations.get(x));
+            ans.add(locations.get(y));
             selected[y] = true;
             noEdges++;
         }
@@ -393,14 +340,14 @@ public class TravellingSalesman {
      * @param tree The graph in which to look for vertices.
      * @return The list of vertices with odd number of edges.
      */
-    private List<Graphable> getOddVertices(List<Graphable> tree) {
+    private List<Location> getOddVertices(List<Location> tree) {
         if (tree == null || tree.size() == 0)
             throw new IllegalArgumentException("odd vertices had an empty or null input.");
 
-        List<Graphable> oddDegreeVertices = new ArrayList<>();
-        Map<Graphable, Integer> map = new HashMap<>();
-        for (Graphable graphable : tree)
-            map.put(graphable, map.getOrDefault(graphable, 0) + 1);
+        List<Location> oddDegreeVertices = new ArrayList<>();
+        Map<Location, Integer> map = new HashMap<>();
+        for (Location location : tree)
+            map.put(location, map.getOrDefault(location, 0) + 1);
         map.forEach((key, value) -> {
             if (value % 2 == 1) {
                 oddDegreeVertices.add(key);
@@ -419,12 +366,12 @@ public class TravellingSalesman {
      * @param odd  The list of vertices with odd an count of edges.
      * @return The resulting graph.
      */
-    private List<Graphable> perfectMatchingGreedy(List<Graphable> tree, List<Graphable> odd) {
+    private List<Location> perfectMatchingGreedy(List<Location> tree, List<Location> odd) {
         if (tree == null || tree.size() == 0 || odd == null)
             throw new IllegalArgumentException("perfect matching had an empty or null input.");
 
-        List<Graphable> matched = new ArrayList<>(tree);
-        List<Graphable> temp = new ArrayList<>(odd);
+        List<Location> matched = new ArrayList<>(tree);
+        List<Location> temp = new ArrayList<>(odd);
         while (temp.size() > 0) {
             double min = Double.MAX_VALUE;
             int minInd = 0;
@@ -447,19 +394,19 @@ public class TravellingSalesman {
      * is of an even degree. Since I'm using directed edges, reverse
      * the new ones.
      *
-     * @param graphables The graph for which to double all edges.
+     * @param locations The graph for which to double all edges.
      * @return The graph with all edges doubled.
      */
-    private List<Graphable> doubleAllEdges(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    private List<Location> doubleAllEdges(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("doubleAllEdges had an empty or null input.");
 
-        graphables.addAll(graphables);
+        locations.addAll(locations);
 
-        for (int i = graphables.size() / 2; i < graphables.size(); i += 2)
-            Collections.swap(graphables, i, i + 1);
+        for (int i = locations.size() / 2; i < locations.size(); i += 2)
+            Collections.swap(locations, i, i + 1);
 
-        return graphables;
+        return locations;
     }
 
     /**
@@ -471,39 +418,39 @@ public class TravellingSalesman {
      * @param matched The graph for which to find the Euler circuit.
      * @return The Euler circuit as calculated by the algorithm.
      */
-    private List<Graphable> getEulerCircuit(List<Graphable> matched) {
+    private List<Location> getEulerCircuit(List<Location> matched) {
         if (matched == null || matched.size() == 0)
             throw new IllegalArgumentException("euler circuit had an empty or null input.");
 
-        Stack<Graphable> currPath = new Stack<>();
-        List<Graphable> circuit = new ArrayList<>();
-        Map<Graphable, List<Graphable>> edges = new HashMap<>();
+        Stack<Location> currPath = new Stack<>();
+        List<Location> circuit = new ArrayList<>();
+        Map<Location, List<Location>> edges = new HashMap<>();
 
         for (int i = 0; i < matched.size(); i += 2) {
-            List<Graphable> list = edges.getOrDefault(matched.get(i), new ArrayList<>());
+            List<Location> list = edges.getOrDefault(matched.get(i), new ArrayList<>());
             list.add(matched.get(i + 1));
             edges.put(matched.get(i), list);
         }
         for (int i = 0; i < matched.size(); i += 2) {
-            List<Graphable> list = edges.getOrDefault(matched.get(i + 1), new ArrayList<>());
+            List<Location> list = edges.getOrDefault(matched.get(i + 1), new ArrayList<>());
             list.add(matched.get(i));
             edges.put(matched.get(i + 1), list);
         }
 
-        for (Map.Entry<Graphable, List<Graphable>> entry : edges.entrySet()) {
+        for (Map.Entry<Location, List<Location>> entry : edges.entrySet()) {
             entry.setValue(new ArrayList<>(new HashSet<>(entry.getValue())));
         }
 
         currPath.push(matched.get(0));
-        Graphable current = matched.get(0);
+        Location current = matched.get(0);
 
         while (!currPath.empty()) {
-            List<Graphable> incident = edges.get(current);
+            List<Location> incident = edges.get(current);
 
             if (!incident.isEmpty()) {
                 currPath.push(current);
-                Graphable next = incident.remove(0);
-                List<Graphable> temp = edges.get(next);
+                Location next = incident.remove(0);
+                List<Location> temp = edges.get(next);
                 temp.remove(current);
                 current = next;
             } else {
@@ -521,16 +468,16 @@ public class TravellingSalesman {
      * @param eulerCircuit The Euler circuit for which to find a Hamiltonian cycle.
      * @return The resulting Hamiltonian cycle.
      */
-    private List<Graphable> getHamiltonianCycle(List<Graphable> eulerCircuit) {
+    private List<Location> getHamiltonianCycle(List<Location> eulerCircuit) {
         if (eulerCircuit == null || eulerCircuit.size() == 0)
             throw new IllegalArgumentException("hamiltonian cycle had an empty or null input.");
 
-        Set<Graphable> visited = new HashSet<>();
-        List<Graphable> hamiltonianCycle = new ArrayList<>();
-        for (Graphable graphable : eulerCircuit)
-            if (!visited.contains(graphable)) {
-                visited.add(graphable);
-                hamiltonianCycle.add(graphable);
+        Set<Location> visited = new HashSet<>();
+        List<Location> hamiltonianCycle = new ArrayList<>();
+        for (Location location : eulerCircuit)
+            if (!visited.contains(location)) {
+                visited.add(location);
+                hamiltonianCycle.add(location);
             }
         return hamiltonianCycle;
     }

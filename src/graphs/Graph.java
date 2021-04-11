@@ -11,9 +11,9 @@ import java.util.*;
  * @version 2021.04.09
  */
 public class Graph {
-    private final List<Vertex> vertexList;
+    private List<Vertex> vertexList;
     private List<Vertex> isolatedVertices;
-    private final Distances distances;
+    private Distances distances;
     private double dist;
 
     /**
@@ -22,12 +22,12 @@ public class Graph {
      * @param input The input vertices.
      * @param distances The distances to be used.
      */
-    public Graph(List<Graphable> input, Distances distances) {
+    public Graph(List<Location> input, Distances distances) {
         this.distances = distances;
         vertexList = new ArrayList<>();
         dist = 0.0;
-        for (Graphable graphable : input)
-            vertexList.add(new Vertex(graphable));
+        for (Location location : input)
+            vertexList.add(new Vertex(location));
         createIsolatedVertices();
     }
 
@@ -61,18 +61,18 @@ public class Graph {
      * @param distances The distances to be used.
      * @param edges The input edges.
      */
-    public Graph(List<Graphable> input, Distances distances, List<Edge> edges) {
+    public Graph(List<Location> input, Distances distances, List<Edge> edges) {
         this.distances = distances;
         vertexList = new ArrayList<>();
         dist = 0.0;
-        for (Graphable graphable : input)
-            vertexList.add(new Vertex(graphable));
+        for (Location location : input)
+            vertexList.add(new Vertex(location));
         for (Edge edge : edges) {
             Vertex first = edge.getFirst();
             Vertex second = edge.getSecond();
-            first.addEdge(second, distances.getDistance(first.getContents(), second.getContents()));
-            second.addEdge(first, distances.getDistance(first.getContents(), second.getContents()));
-            dist += distances.getDistance(first.getContents(), second.getContents());
+            first.addEdge(second, distances.getDistance(first, second));
+            second.addEdge(first, distances.getDistance(first, second));
+            dist += distances.getDistance(first, second);
         }
         createIsolatedVertices();
     }
@@ -103,15 +103,15 @@ public class Graph {
     /**
      * Add an edge to the graph.
      *
-     * @param graphable1 The first graphable to be added.
-     * @param graphable2 The second graphable to be added.
+     * @param location1 The first graphable to be added.
+     * @param location2 The second graphable to be added.
      */
-    public void addEdge(Graphable graphable1, Graphable graphable2) {
-        Vertex first = new Vertex(graphable1);
-        Vertex second = new Vertex(graphable2);
-        first.addEdge(second, distances.getDistance(graphable1, graphable2));
-        second.addEdge(first, distances.getDistance(graphable2, graphable1));
-        dist += distances.getDistance(graphable1, graphable2);
+    public void addEdge(Location location1, Location location2) {
+        Vertex first = new Vertex(location1);
+        Vertex second = new Vertex(location2);
+        first.addEdge(second, distances.getDistance(location1, location2));
+        second.addEdge(first, distances.getDistance(location2, location1));
+        dist += distances.getDistance(location1, location2);
     }
 
     /**
@@ -125,9 +125,9 @@ public class Graph {
             isolatedVertices.remove(vertex1);
         if (vertex2.isIsolated())
             isolatedVertices.remove(vertex2);
-        vertex1.addEdge(vertex2, distances.getDistance(vertex1.getContents(), vertex2.getContents()));
-        vertex2.addEdge(vertex1, distances.getDistance(vertex2.getContents(), vertex1.getContents()));
-        dist += distances.getDistance(vertex1.getContents(), vertex2.getContents());
+        vertex1.addEdge(vertex2, distances.getDistance(vertex1, vertex2));
+        vertex2.addEdge(vertex1, distances.getDistance(vertex2, vertex1));
+        dist += distances.getDistance(vertex1, vertex2);
     }
 
     /**
@@ -178,7 +178,7 @@ public class Graph {
         double min = Double.MAX_VALUE;
         Vertex candidate = null;
         for (Vertex vertex : isolatedVertices) {
-            double curr = distances.getDistance(vertex.getContents(), target.getContents());
+            double curr = distances.getDistance(vertex, target);
             if (!vertex.equals(target) && curr < min) {
                 min = curr;
                 candidate = vertex;
@@ -202,5 +202,12 @@ public class Graph {
      */
     public double getDist() {
         return dist;
+    }
+
+    public void copy(Graph graph) {
+        this.distances = graph.getDistances();
+        this.vertexList = new ArrayList<>(graph.getVertexList());
+        this.isolatedVertices = new ArrayList<>(graph.getIsolatedVertices());
+        this.dist = graph.getDist();
     }
 }

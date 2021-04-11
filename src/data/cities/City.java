@@ -1,6 +1,6 @@
 package data.cities;
 
-import graphs.Graphable;
+import graphs.Location;
 
 /**
  * A class responsible for holding information about a city.
@@ -8,7 +8,7 @@ import graphs.Graphable;
  * @author mikolajdeja
  * @version 20.03.2021
  */
-public class City extends Graphable {
+public class City extends Location {
 
     /**
      * A constructor for a city.

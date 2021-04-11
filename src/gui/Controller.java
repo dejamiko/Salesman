@@ -1,6 +1,6 @@
 package gui;
 
-import graphs.Graphable;
+import graphs.Location;
 import data.handout.AirbnbData;
 import data.handout.AirbnbListing;
 import javafx.application.Platform;
@@ -60,9 +60,9 @@ public class Controller {
     private HashMap<TSPCalculationMethod, Integer> possibleCalculations;
 
     // All lists responsible for holding listings
-    private List<Graphable> allListings;
-    private List<Graphable> listingList;
-    private List<Graphable> resultList;
+    private List<Location> allListings;
+    private List<Location> listingList;
+    private List<Location> resultList;
 
     /**
      * Constructor for the controller.
@@ -208,12 +208,12 @@ public class Controller {
     }
 
     /**
-     * Draw a polygon (route between the graphables)
+     * Draw a polygon (route between the locations)
      *
-     * @param graphables The list of the graphables to be drawn.
+     * @param locations The list of the locations to be drawn.
      */
-    private void drawPolygon(List<Graphable> graphables) {
-        double[] coordinates = getCoordinates(graphables);
+    private void drawPolygon(List<Location> locations) {
+        double[] coordinates = getCoordinates(locations);
         Polygon route = new Polygon(coordinates);
         route.setFill(Paint.valueOf("ffffff00"));
         route.setStroke(Paint.valueOf("909090"));
@@ -222,18 +222,18 @@ public class Controller {
         group = new Group();
         group.getChildren().add(route);
         middle.setCenter(group);
-        drawListingsPoints(graphables);
+        drawListingsPoints(locations);
         routeDrawn = true;
     }
 
     /**
      * Draw points for every listing.
      *
-     * @param graphables The list of the graphables to be drawn.
+     * @param locations The list of the locations to be drawn.
      */
     @FXML
-    private void drawListingsPoints(List<Graphable> graphables) {
-        double[] coordinates = getCoordinates(graphables);
+    private void drawListingsPoints(List<Location> locations) {
+        double[] coordinates = getCoordinates(locations);
         for (int i = 0; i < coordinates.length; i += 2) {
             group.getChildren().add(new Circle(coordinates[i], coordinates[i + 1], 3));
         }
@@ -282,9 +282,9 @@ public class Controller {
             try (FileWriter writer = new FileWriter(file)) {
                 int i = 1;
                 writer.write("Your route is:\n");
-                for (Graphable graphable : resultList) {
-                    if (graphable instanceof AirbnbListing)
-                        writer.write("\n" + i++ + ". " + graphable.getName() + " rented by " + ((AirbnbListing) graphable).getHost_name());
+                for (Location location : resultList) {
+                    if (location instanceof AirbnbListing)
+                        writer.write("\n" + i++ + ". " + location.getName() + " rented by " + ((AirbnbListing) location).getHost_name());
                 }
             } catch (IOException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -320,18 +320,18 @@ public class Controller {
     /**
      * Get coordinates of all the places.
      *
-     * @param graphables The list of places.
+     * @param locations The list of places.
      * @return The coordinates of places.
      */
-    public double[] getCoordinates(List<Graphable> graphables) {
-        if (graphables == null || graphables.size() == 0)
+    public double[] getCoordinates(List<Location> locations) {
+        if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("getCoordinates had an empty or null input.");
 
-        double[] coordinates = new double[graphables.size() * 2];
+        double[] coordinates = new double[locations.size() * 2];
         int i = 0;
-        for (Graphable graphable : graphables) {
-            coordinates[i++] = graphable.getLongitude(); // x coordinate
-            coordinates[i++] = graphable.getLatitude(); // y coordinate
+        for (Location location : locations) {
+            coordinates[i++] = location.getLongitude(); // x coordinate
+            coordinates[i++] = location.getLatitude(); // y coordinate
         }
 
         return scaleCoordinates(coordinates, middle.getWidth() * 0.85, middle.getHeight() * 0.85);

@@ -11,6 +11,8 @@ import java.util.*;
  * @version 2021.04.10
  */
 public class SalesmanGraph extends Graph {
+    private List<Vertex> best;
+    private double min;
 
     /**
      * A constructor for the graph with given input vertices.
@@ -18,7 +20,7 @@ public class SalesmanGraph extends Graph {
      * @param input The input vertices.
      * @param distances The distances to be used.
      */
-    public SalesmanGraph(List<Graphable> input, Distances distances) {
+    public SalesmanGraph(List<Location> input, Distances distances) {
         super(input, distances);
     }
 
@@ -47,8 +49,41 @@ public class SalesmanGraph extends Graph {
      * @param distances The distances to be used.
      * @param edges The input edges.
      */
-    public SalesmanGraph(List<Graphable> input, Distances distances, List<Edge> edges) {
+    public SalesmanGraph(List<Location> input, Distances distances, List<Edge> edges) {
         super(input, distances, edges);
+    }
+
+    /**
+     * A heuristic approach to solving the TSP.
+     * <p>
+     * This approach combines the minimum spanning tree with minimum-weight
+     * perfect matching (or in my case its heuristic approximation).
+     * The algorithm is described here:
+     * <p>
+     * https://en.wikipedia.org/wiki/Christofides_algorithm
+     */
+    public void christofidesNN() {
+        removeAllEdges();
+        createMinimalSpanningTree();
+        createPerfectMatching();
+        createEulerCircuit();
+        createHamiltonianCycle();
+    }
+
+    /**
+     * A heuristic approach to solving the TSP.
+     * <p>
+     * This approach combines the minimum spanning tree with doubling the trees edges.
+     * The algorithm is described here:
+     * <p>
+     * https://en.wikipedia.org/wiki/Travelling_salesman_problem#Heuristic_and_approximation_algorithms
+     */
+    public void christofidesDouble() {
+        removeAllEdges();
+        createMinimalSpanningTree();
+        doubleAllEdges();
+        createEulerCircuit();
+        createHamiltonianCycle();
     }
 
     /**
@@ -56,18 +91,18 @@ public class SalesmanGraph extends Graph {
      *
      * @return The route in the graph.
      */
-    public List<Graphable> getRoute() {
+    public List<Vertex> getRoute() {
         Set<Vertex> visited = new HashSet<>();
-        List<Graphable> route = new ArrayList<>();
+        List<Vertex> route = new ArrayList<>();
         Vertex curr = getVertexList().get(0);
         for (Vertex vertex : getVertexList())
-            if (vertex.getNumberOfAdjacent() == 1) {
+            if (vertex.isPendant()) {
                 curr = vertex;
                 break;
             }
 
         while (visited.size() < getVertexList().size()) {
-            route.add(curr.getContents());
+            route.add(curr);
             visited.add(curr);
             List<Vertex> adjacent = curr.getAdjacentVertices();
             if (visited.containsAll(adjacent)) {
@@ -89,8 +124,6 @@ public class SalesmanGraph extends Graph {
      * https://en.wikipedia.org/wiki/Prim%27s_algorithm
      */
     public void createMinimalSpanningTree() {
-        removeAllEdges();
-
         int noEdges = 0;
         int noVertices = getVertexList().size();
         double[][] distanceMatrix = getDistances().getDistanceMatrix(new ArrayList<>(getVertexList()));
@@ -195,11 +228,7 @@ public class SalesmanGraph extends Graph {
                 current = currPath.pop();
             }
         }
-        removeAllEdges();
-        for (int i = 0; i < circuit.size() - 1; i++) {
-            addEdge(circuit.get(i), circuit.get(i + 1));
-        }
-        addEdge(circuit.get(0), circuit.get(circuit.size() - 1));
+        drawNewPath(circuit);
 
         return circuit;
     }
@@ -218,12 +247,160 @@ public class SalesmanGraph extends Graph {
                 hamiltonianCycle.add(vertex);
             }
         }
-        removeAllEdges();
-        for (int i = 0; i < hamiltonianCycle.size() - 1; i++) {
-            addEdge(hamiltonianCycle.get(i), hamiltonianCycle.get(i + 1));
-        }
-        addEdge(hamiltonianCycle.get(0), hamiltonianCycle.get(hamiltonianCycle.size() - 1));
+        drawNewPath(hamiltonianCycle);
     }
 
+    /**
+     * A brute force approach to find a collection of places in
+     * order with which they should be visited, for the total distance
+     * to be minimal.
+     */
+    public void bruteForceApproach() {
+        if (getVertexList().size() > 10)
+            return;
 
+        List<Vertex> vertices = new ArrayList<>(getVertexList());
+        best = new ArrayList<>(vertices);
+        min = Double.MAX_VALUE;
+
+        bruteForceApproach(vertices, vertices.size());
+
+        drawNewPath(best);
+    }
+
+    /**
+     * The exhaustive enumeration approach to find a collection of places
+     * as a solution to the travelling salesman problem. This
+     * approach checks every permutation of the list and to do
+     * that I use the Heap's algorithm:
+     * <p>
+     * https://en.wikipedia.org/wiki/Heap%27s_algorithm
+     *
+     * @param size The size of the part of the collection to be permuted.
+     * @param vertices The list for which the algorithm is calculated.
+     */
+    private void bruteForceApproach(List<Vertex> vertices, int size) {
+
+        if (size == 1) {
+            double curr = getDistances().getPathDistance(new ArrayList<>(vertices));
+            if (curr < min) {
+                min = curr;
+                best = new ArrayList<>(vertices);
+            }
+        }
+
+        for (int i = 0; i < size; ++i) {
+            bruteForceApproach(vertices, size - 1);
+            if (size % 2 == 0)
+                Collections.swap(vertices, i, size - 1);
+            else
+                Collections.swap(vertices, 0, size - 1);
+        }
+    }
+
+    /**
+     * A heuristic method of solving the TSP. It builds on the Nearest
+     * Neighbour algorithm.
+     * <p>
+     * Run the Nearest Neighbour algorithm for all possible
+     * starting places. Keep the best one in graph best.
+     */
+    public void improvedNearestNeighbouring() {
+        SalesmanGraph best = new SalesmanGraph(getDistances());
+
+        double currMin = Double.MAX_VALUE;
+        for (int i = 0; i < getVertexList().size(); ++i) {
+            nearestNeighbourAlgorithm(i);
+            if (getDist() < currMin) {
+                currMin = getDist();
+                best = new SalesmanGraph(this);
+            }
+        }
+        copy(best);
+    }
+
+    /**
+     * A heuristic approach to solving the TSP.
+     * <p>
+     * This approach takes the nearest neighbour of the current place
+     * as the next one. It's a greedy algorithm, described here:
+     * <p>
+     * https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm
+     *
+     * @param starting   The index of the starting place.
+     */
+    public void nearestNeighbourAlgorithm(int starting) {
+        removeAllEdges();
+        Vertex current = getIsolatedVertex(starting);
+        Vertex first = current;
+        while (getIsolatedVertices().size() > 0) {
+            Vertex next = getClosestIsolated(current);
+            addEdge(current, next);
+            current = next;
+        }
+        addEdge(current, first);
+    }
+
+    /**
+     * An optimization algorithm, useful for further improving
+     * the results of some heuristic algorithms.
+     * <p>
+     * A 2-opt algorithm, as described here:
+     * <p>
+     * https://en.wikipedia.org/wiki/2-opt
+     */
+    public void opt2() {
+        List<Vertex> vertices = getRoute();
+        List<Vertex> ans = getRoute();
+        boolean changed = true;
+        double bestDistance = getDistances().getPathDistance(new ArrayList<>(vertices));
+        while (changed) {
+            changed = false;
+            for (int i = 1; i < vertices.size() - 1; ++i) {
+                for (int j = i + 1; j < vertices.size() - 1; ++j) {
+
+                    vertices = opt2Swap(vertices, i, j);
+
+                    double newDistance = getDistances().getPathDistance(new ArrayList<>(vertices));
+                    if (newDistance < bestDistance) {
+                        bestDistance = newDistance;
+                        ans = new ArrayList<>(vertices);
+                        changed = true;
+                    }
+                }
+            }
+        }
+        drawNewPath(ans);
+    }
+
+    /**
+     * A swap utilised by the 2-opt algorithm.
+     *
+     * @param route The route on which the algorithm works.
+     * @param i     The beginning index.
+     * @param j     The end index.
+     * @return The route after the swap.
+     */
+    private List<Vertex> opt2Swap(List<Vertex> route, int i, int j) {
+        List<Vertex> ans = new ArrayList<>(route.subList(0, i));
+        List<Vertex> temp = new ArrayList<>(route.subList(i, j + 1));
+        Collections.reverse(temp);
+        ans.addAll(temp);
+        ans.addAll(route.subList(j + 1, route.size()));
+
+        return ans;
+    }
+
+    /**
+     * Create edges between vertices in the given list.
+     *
+     * @param list List of vertices.
+     */
+    private void drawNewPath(List<Vertex> list) {
+        removeAllEdges();
+        for (int i = 0; i + 1 < list.size(); i++) {
+            addEdge(list.get(i), list.get(i + 1));
+        }
+        addEdge(list.get(0), list.get(list.size() - 1));
+    }
 }

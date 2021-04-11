@@ -1,5 +1,7 @@
 package graphs;
 
+import salesman.Graphable;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -11,8 +13,8 @@ import java.util.stream.Collectors;
  * @author mikolajdeja
  * @version 2021.04.09
  */
-public class Vertex {
-    private final Graphable contents;
+public class Vertex implements Graphable {
+    private final Location contents;
     private List<Edge> incidentEdges;
 
     /**
@@ -20,7 +22,7 @@ public class Vertex {
      *
      * @param contents The contents stored in the vertex.
      */
-    public Vertex(Graphable contents) {
+    public Vertex(Location contents) {
         this.contents = contents;
         incidentEdges = new ArrayList<>();
     }
@@ -38,7 +40,7 @@ public class Vertex {
     /**
      * @return The contents stored in the vertex.
      */
-    public Graphable getContents() {
+    public Location getContents() {
         return contents;
     }
 
@@ -94,7 +96,7 @@ public class Vertex {
      * @param contents The contents to be checked.
      * @return True if the vertex contains given contents.
      */
-    public boolean contains(Graphable contents) {
+    public boolean contains(Location contents) {
         return this.contents.equals(contents);
     }
 

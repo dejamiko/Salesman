@@ -1,6 +1,6 @@
 package data.cities;
 
-import graphs.Graphable;
+import graphs.Location;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,8 +18,8 @@ public class CityData {
      *
      * @return A list of sample cities.
      */
-    public static List<Graphable> getSampleCities() {
-        List<Graphable> cities = new ArrayList<>();
+    public static List<Location> getSampleCities() {
+        List<Location> cities = new ArrayList<>();
 
         cities.add(new City("Krakow", 50.061389, 19.937222));
         cities.add(new City("Berlin", 52.52, 13.405));

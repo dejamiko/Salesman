@@ -1,6 +1,6 @@
 package salesman;
 
-import graphs.Graphable;
+import graphs.Location;
 import graphs.Vertex;
 
 import java.util.*;
@@ -19,7 +19,7 @@ public class Distances {
     // The Earth's equatorial radius as defined by IUGG
     private final static double EQUATORIAL_RADIUS = 6378.1370;
     private final boolean usingLambert;
-    private final Map<Set<Graphable>, Double> pairwiseDistances;
+    private final Map<Set<Location>, Double> pairwiseDistances;
 
     /**
      * Initialise the object and set a boolean flag to see
@@ -32,18 +32,7 @@ public class Distances {
         pairwiseDistances = new HashMap<>();
     }
 
-    /**
-     * Get the whole path length for the list of places.
-     *
-     * @param route The list of places.
-     * @return The length of the path between the places.
-     */
-    public double getPathDistance(List<Graphable> route) {
-        if (route == null)
-            throw new IllegalArgumentException("getPathDistance got a null input");
-        if (route.size() < 2)
-            throw new IllegalArgumentException("getPathDistance got an input of length <2");
-
+    public double getPathDistance(List<? extends Graphable> route) {
         double ans = 0;
         for (int i = 0; i + 1 < route.size(); ++i) {
             ans += getDistance(route.get(i), route.get(i + 1));
@@ -53,69 +42,36 @@ public class Distances {
         return ans;
     }
 
-
-    public double[][] getDistanceMatrix(ArrayList<Vertex> vertexList) {
-        double[][] distances = new double[vertexList.size()][vertexList.size()];
+    public double[][] getDistanceMatrix(List<? extends Graphable> graphables) {
+        double[][] distances = new double[graphables.size()][graphables.size()];
         for (int i = 0; i < distances.length; ++i)
             for (int j = i + 1; j < distances[i].length; ++j) {
-                distances[i][j] = getDistance(vertexList.get(i), vertexList.get(j));
+                distances[i][j] = getDistance(graphables.get(i), graphables.get(j));
                 distances[j][i] = distances[i][j]; //symmetry
             }
         return distances;
     }
 
-    public double getDistance(Vertex vertex1, Vertex vertex2) {
-        if (vertex1.equals(vertex2))
+    public double getDistance(Graphable graphable1, Graphable graphable2) {
+        if (graphable1.equals(graphable2)) {
             return 0.0;
-
-        Set<Graphable> set = new HashSet<>(Arrays.asList(vertex1.getContents(), vertex2.getContents()));
-        Double distance = pairwiseDistances.get(set);
-        if (distance == null) {
-            distance = calculateDistance(vertex1.getContents(), vertex2.getContents());
-            pairwiseDistances.put(set, distance);
         }
-        return distance;
-    }
 
-    /**
-     * Create a distance matrix for all places.
-     *
-     * @param listings List of places.
-     * @return The calculated distance matrix for all the places.
-     */
-    public double[][] getDistanceMatrix(List<Graphable> listings) {
-        if (listings == null)
-            throw new IllegalArgumentException("getDistanceMatrix got a null input");
-        if (listings.size() < 2)
-            throw new IllegalArgumentException("getDistanceMatrix got an input of length <2");
+        Location location1;
+        Location location2;
+        if (graphable1 instanceof Vertex) {
+            location1 = ((Vertex) graphable1).getContents();
+            location2 = ((Vertex) graphable1).getContents();
+        }
+        else {
+            location1 = (Location) graphable1;
+            location2 = (Location) graphable2;
+        }
 
-        double[][] distances = new double[listings.size()][listings.size()];
-        for (int i = 0; i < distances.length; ++i)
-            for (int j = i + 1; j < distances[i].length; ++j) {
-                distances[i][j] = getDistance(listings.get(i), listings.get(j));
-                distances[j][i] = distances[i][j]; //symmetry
-            }
-        return distances;
-    }
-
-    /**
-     * Get the distance between two listings: try finding it in the hashmap,
-     * if not present, calculate it and store it in the hashmap.
-     *
-     * @param listing1 The first place.
-     * @param listing2 The second place.
-     * @return Distance between the two places.
-     */
-    public double getDistance(Graphable listing1, Graphable listing2) {
-        if (listing1 == null || listing2 == null)
-            throw new IllegalArgumentException("getDistance got a null input");
-        if (listing1.equals(listing2))
-            return 0.0;
-
-        Set<Graphable> set = new HashSet<>(Arrays.asList(listing1, listing2));
+        Set<Location> set = new HashSet<>(Arrays.asList(location1, location2));
         Double distance = pairwiseDistances.get(set);
         if (distance == null) {
-            distance = calculateDistance(listing1, listing2);
+            distance = calculateDistance(location1, location2);
             pairwiseDistances.put(set, distance);
         }
         return distance;
@@ -124,18 +80,18 @@ public class Distances {
     /**
      * Calculate the distance between two locations.
      *
-     * @param listing1 The first place.
-     * @param listing2 The second place.
+     * @param location1 The first place.
+     * @param location2 The second place.
      * @return Distance between the two places.
      */
-    private double calculateDistance(Graphable listing1, Graphable listing2) {
-        if (listing1 == null || listing2 == null)
+    private double calculateDistance(Location location1, Location location2) {
+        if (location1 == null || location2 == null)
             throw new IllegalArgumentException("getDistance got a null input");
 
-        double lat1 = degToRad(listing1.getLatitude());
-        double long1 = degToRad(listing1.getLongitude());
-        double lat2 = degToRad(listing2.getLatitude());
-        double long2 = degToRad(listing2.getLongitude());
+        double lat1 = degToRad(location1.getLatitude());
+        double long1 = degToRad(location1.getLongitude());
+        double lat2 = degToRad(location2.getLatitude());
+        double long2 = degToRad(location2.getLongitude());
 
         if (usingLambert)
             return calculateDistance(lat1, long1, lat2, long2);

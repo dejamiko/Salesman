@@ -1,5 +1,7 @@
 package graphs;
 
+import salesman.Graphable;
+
 import java.util.Objects;
 
 /**
@@ -9,7 +11,7 @@ import java.util.Objects;
  * @author mikolajdeja
  * @version 2021.04.08
  */
-public abstract class Graphable {
+public abstract class Location implements Graphable {
     private final String name;
     private final double latitude;
     private final double longitude;
@@ -21,7 +23,7 @@ public abstract class Graphable {
      * @param latitude The latitude of the graphable.
      * @param longitude The longitude of the graphable.
      */
-    public Graphable(String name, double latitude, double longitude) {
+    public Location(String name, double latitude, double longitude) {
         this.name = name;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -58,8 +60,8 @@ public abstract class Graphable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Graphable graphable = (Graphable) o;
-        return Double.compare(graphable.latitude, latitude) == 0 && Double.compare(graphable.longitude, longitude) == 0 && Objects.equals(name, graphable.name);
+        Location location = (Location) o;
+        return Double.compare(location.latitude, latitude) == 0 && Double.compare(location.longitude, longitude) == 0 && Objects.equals(name, location.name);
     }
 
     /**
