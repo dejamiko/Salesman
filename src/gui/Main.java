@@ -11,7 +11,7 @@ import java.util.Objects;
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) throws Exception{
+    public void start(Stage primaryStage) throws Exception {
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("salesman.fxml")));
         primaryStage.setTitle("Salesman showcase");
         primaryStage.setScene(new Scene(root, 1024, 768));

@@ -34,7 +34,7 @@ public class TravellingSalesman {
      * https://en.wikipedia.org/wiki/Travelling_salesman_problem
      * <p>
      * Given a list of places and the distances between them, what is
-     * the shortest possible route that visits each city exactly once and
+     * the shortest possible route that visits each place exactly once and
      * returns to the origin place?
      * <p>
      * It's an NP-hard problem, well known and useful in many branches
@@ -68,7 +68,7 @@ public class TravellingSalesman {
      * @param locations The list of places.
      * @return The list of places in a correct order.
      */
-    public List<Location> bruteForceApproach(List<Location> locations) {
+    private List<Location> bruteForceApproach(List<Location> locations) {
         if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("Brute force had an empty or null input.");
 
@@ -131,7 +131,7 @@ public class TravellingSalesman {
      * @param starting   The index of the starting place.
      * @return The list of the places as nearest neighbours.
      */
-    public List<Location> nearestNeighbourAlgorithm(List<Location> locations, int starting) {
+    private List<Location> nearestNeighbourAlgorithm(List<Location> locations, int starting) {
         if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("nearest neighbour had an empty or null input.");
 
@@ -164,7 +164,7 @@ public class TravellingSalesman {
      * @param locations The list of places to visit.
      * @return The list of places in an order in which they should be visited.
      */
-    public List<Location> improvedNearestNeighbouring(List<Location> locations) {
+    private List<Location> improvedNearestNeighbouring(List<Location> locations) {
         if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("improvedNN had an empty or null input.");
 
@@ -256,7 +256,7 @@ public class TravellingSalesman {
      * @param locations The list of places for which to solve the TSP.
      * @return The route as calculated by this algorithm.
      */
-    public List<Location> christofidesNN(List<Location> locations) {
+    private List<Location> christofidesNN(List<Location> locations) {
         if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("christofides had an empty or null input.");
 
@@ -280,7 +280,7 @@ public class TravellingSalesman {
      * @param locations The list of places for which to solve the TSP.
      * @return The route as calculated by this algorithm.
      */
-    public List<Location> christofidesDoubleEdges(List<Location> locations) {
+    private List<Location> christofidesDoubleEdges(List<Location> locations) {
         if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("christofidesDoubleEdges had an empty or null input.");
 
@@ -301,7 +301,7 @@ public class TravellingSalesman {
      * @param locations The graph in which the tree is to be found.
      * @return The minimum spanning tree.
      */
-    public List<Location> getMinimalTree(List<Location> locations) {
+    private List<Location> getMinimalTree(List<Location> locations) {
         if (locations == null || locations.size() == 0)
             throw new IllegalArgumentException("minimal tree had an empty or null input.");
 

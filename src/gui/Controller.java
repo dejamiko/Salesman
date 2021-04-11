@@ -3,6 +3,8 @@ package gui;
 import graphs.Location;
 import data.handout.AirbnbData;
 import data.handout.AirbnbListing;
+import graphs.SalesmanGraph;
+import graphs.Vertex;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
@@ -18,12 +20,12 @@ import javafx.stage.Stage;
 import salesman.DistanceCalculationMethod;
 import salesman.Distances;
 import salesman.TSPCalculationMethod;
-import salesman.TravellingSalesman;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Controller class for the fourth panel.
@@ -159,14 +161,14 @@ public class Controller {
         setBottomLabel("Calculating...", 0.0);
         setDisabilityOfGuiElements(true);
         new Thread(() -> {
-            TravellingSalesman salesman = new TravellingSalesman(distanceMethodChoice.getValue());
-            Distances distances = salesman.getDistances();
             createListingList(false);
+            SalesmanGraph graph = new SalesmanGraph(listingList, new Distances(distanceMethodChoice.getValue()));
             try {
-                resultList = salesman.solveTravellingSalesmanProblem(listingList, methodChoice.getValue());
+                graph.solveTravellingSalesmanProblem(methodChoice.getValue());
                 if (opt2CheckBox.isSelected() && !opt2CheckBox.isDisabled()) {
-                    resultList = salesman.opt2(resultList);
+                    graph.opt2();
                 }
+                resultList = graph.getRoute().stream().map(Vertex::getContents).collect(Collectors.toList());
             } catch (IllegalArgumentException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText("There was a problem calculating the route.");
@@ -174,7 +176,7 @@ public class Controller {
                 alert.showAndWait();
             }
             Platform.runLater(() -> {
-                setBottomLabel("Distance calculated: ", distances.getPathDistance(resultList));
+                setBottomLabel("Distance calculated: ", graph.getDist());
                 drawPolygon(resultList);
                 setDisabilityOfGuiElements(false);
             });

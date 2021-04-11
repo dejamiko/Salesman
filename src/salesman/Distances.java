@@ -61,7 +61,7 @@ public class Distances {
         Location location2;
         if (graphable1 instanceof Vertex) {
             location1 = ((Vertex) graphable1).getContents();
-            location2 = ((Vertex) graphable1).getContents();
+            location2 = ((Vertex) graphable2).getContents();
         }
         else {
             location1 = (Location) graphable1;

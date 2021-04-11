@@ -1,6 +1,7 @@
 package graphs;
 
 import salesman.Distances;
+import salesman.TSPCalculationMethod;
 
 import java.util.*;
 
@@ -17,7 +18,7 @@ public class SalesmanGraph extends Graph {
     /**
      * A constructor for the graph with given input locations.
      *
-     * @param input The input locations.
+     * @param input     The input locations.
      * @param distances The distances to be used.
      */
     public SalesmanGraph(List<Location> input, Distances distances) {
@@ -45,12 +46,38 @@ public class SalesmanGraph extends Graph {
     /**
      * A constructor for the graph with given locations and edges.
      *
-     * @param input The input locations.
+     * @param input     The input locations.
      * @param distances The distances to be used.
-     * @param edges The input edges.
+     * @param edges     The input edges.
      */
     public SalesmanGraph(List<Location> input, Distances distances, List<Edge> edges) {
         super(input, distances, edges);
+    }
+
+    /**
+     * Solve the Travelling Salesman Problem:
+     * <p>
+     * https://en.wikipedia.org/wiki/Travelling_salesman_problem
+     * <p>
+     * Given a list of places and the distances between them, what is
+     * the shortest possible route that visits each place exactly once and
+     * returns to the origin place?
+     * <p>
+     * It's an NP-hard problem, well known and useful in many branches
+     * of computer science. I implemented a few different algorithms to solve it.
+     *
+     * @param method The method of calculating the route.
+     */
+    public void solveTravellingSalesmanProblem(TSPCalculationMethod method) {
+        Random rand = new Random();
+
+        switch (method) {
+            case NEAREST_NEIGHBOUR -> nearestNeighbourAlgorithm(rand.nextInt(getVertexList().size()));
+            case IMPROVED_NEAREST_NEIGHBOUR -> improvedNearestNeighbouring();
+            case CHRISTOFIDES_DOUBLE_EDGES -> christofidesDouble();
+            case CHRISTOFIDES_MATCHING -> christofidesNN();
+            case BRUTE_FORCE -> bruteForceApproach();
+        }
     }
 
     /**
@@ -62,7 +89,7 @@ public class SalesmanGraph extends Graph {
      * <p>
      * https://en.wikipedia.org/wiki/Christofides_algorithm
      */
-    public void christofidesNN() {
+    private void christofidesNN() {
         removeAllEdges();
         createMinimalSpanningTree();
         createPerfectMatching();
@@ -78,7 +105,7 @@ public class SalesmanGraph extends Graph {
      * <p>
      * https://en.wikipedia.org/wiki/Travelling_salesman_problem#Heuristic_and_approximation_algorithms
      */
-    public void christofidesDouble() {
+    private void christofidesDouble() {
         removeAllEdges();
         createMinimalSpanningTree();
         doubleAllEdges();
@@ -114,6 +141,10 @@ public class SalesmanGraph extends Graph {
                     break;
                 }
         }
+
+        if (visited.size() != route.size())
+            return getVertexList();
+
         return route;
     }
 
@@ -123,7 +154,7 @@ public class SalesmanGraph extends Graph {
      * <p>
      * https://en.wikipedia.org/wiki/Prim%27s_algorithm
      */
-    public void createMinimalSpanningTree() {
+    private void createMinimalSpanningTree() {
         int noEdges = 0;
         int noVertices = getVertexList().size();
         double[][] distanceMatrix = getDistances().getDistanceMatrix(new ArrayList<>(getVertexList()));
@@ -144,7 +175,7 @@ public class SalesmanGraph extends Graph {
                             }
             addEdge(getVertexList().get(x), getVertexList().get(y));
             selected[y] = true;
-            noEdges ++;
+            noEdges++;
         }
     }
 
@@ -153,7 +184,7 @@ public class SalesmanGraph extends Graph {
      *
      * @return The list of vertices with odd number of edges.
      */
-    public List<Vertex> getOddNumbered() {
+    private List<Vertex> getOddNumbered() {
         List<Vertex> oddNumbered = new ArrayList<>();
         for (Vertex vertex : getVertexList())
             if (vertex.isOddNumbered())
@@ -167,7 +198,7 @@ public class SalesmanGraph extends Graph {
      * and add it to the whole graph. In my case it's not a minimal-weight
      * perfect matching, I approximate it with the nearest neighbour algorithm.
      */
-    public void createPerfectMatching() {
+    private void createPerfectMatching() {
         List<Vertex> oddNumbered = getOddNumbered();
         while (oddNumbered.size() > 0) {
             double min = Double.MAX_VALUE;
@@ -193,7 +224,7 @@ public class SalesmanGraph extends Graph {
     /**
      * Double all edges in the graph.
      */
-    public void doubleAllEdges() {
+    private void doubleAllEdges() {
         List<Edge> edges = new ArrayList<>();
         for (Vertex vertex : getVertexList())
             edges.addAll(vertex.getIncidentEdges());
@@ -209,7 +240,7 @@ public class SalesmanGraph extends Graph {
      *
      * @return The Euler circuit as calculated by the algorithm.
      */
-    public List<Vertex> createEulerCircuit() {
+    private List<Vertex> createEulerCircuit() {
         Stack<Vertex> currPath = new Stack<>();
         List<Vertex> circuit = new ArrayList<>();
 
@@ -237,7 +268,7 @@ public class SalesmanGraph extends Graph {
      * Create a Hamiltonian cycle from the Euler circuit by skipping the
      * repeated vertices.
      */
-    public void createHamiltonianCycle() {
+    private void createHamiltonianCycle() {
         Set<Vertex> visited = new HashSet<>();
         List<Vertex> hamiltonianCycle = new ArrayList<>();
         List<Vertex> euler = createEulerCircuit();
@@ -255,7 +286,7 @@ public class SalesmanGraph extends Graph {
      * order with which they should be visited, for the total distance
      * to be minimal.
      */
-    public void bruteForceApproach() {
+    private void bruteForceApproach() {
         if (getVertexList().size() > 10)
             return;
 
@@ -276,7 +307,7 @@ public class SalesmanGraph extends Graph {
      * <p>
      * https://en.wikipedia.org/wiki/Heap%27s_algorithm
      *
-     * @param size The size of the part of the collection to be permuted.
+     * @param size     The size of the part of the collection to be permuted.
      * @param vertices The list for which the algorithm is calculated.
      */
     private void bruteForceApproach(List<Vertex> vertices, int size) {
@@ -305,7 +336,7 @@ public class SalesmanGraph extends Graph {
      * Run the Nearest Neighbour algorithm for all possible
      * starting places. Keep the best one in graph best.
      */
-    public void improvedNearestNeighbouring() {
+    private void improvedNearestNeighbouring() {
         SalesmanGraph best = new SalesmanGraph(getDistances());
 
         double currMin = Double.MAX_VALUE;
@@ -327,9 +358,9 @@ public class SalesmanGraph extends Graph {
      * <p>
      * https://en.wikipedia.org/wiki/Nearest_neighbour_algorithm
      *
-     * @param starting   The index of the starting place.
+     * @param starting The index of the starting place.
      */
-    public void nearestNeighbourAlgorithm(int starting) {
+    private void nearestNeighbourAlgorithm(int starting) {
         removeAllEdges();
         Vertex current = getIsolatedVertex(starting);
         Vertex first = current;
