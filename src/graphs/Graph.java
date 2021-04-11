@@ -204,6 +204,11 @@ public class Graph {
         return dist;
     }
 
+    /**
+     * Make a copy of graph to this.
+     *
+     * @param graph The graph to be copied.
+     */
     public void copy(Graph graph) {
         this.distances = graph.getDistances();
         this.vertexList = new ArrayList<>(graph.getVertexList());
