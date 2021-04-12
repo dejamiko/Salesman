@@ -13,6 +13,7 @@ public class AntGraph extends SalesmanGraph {
     private double[][] pheromoneTrails;
     private double[][] distancesMatrix;
     private double[] desirability;
+    private double[][] des;
     private final double dstPower = 3;
     private final double pheromonePower = 1;
     private final double evaporationRate = 0.5;
@@ -31,11 +32,11 @@ public class AntGraph extends SalesmanGraph {
                 pheromoneTrails[i][j] = initialPheromoneIntensity;
         best = new ArrayList<>();
         desirability = new double[getVertexList().size()];
+        des = new double[getVertexList().size()][getVertexList().size()];
         distancesMatrix = getDistances().getDistanceMatrix(input);
     }
 
     public void solveTravellingSalesmanProblem(TSPCalculationMethod method) {
-
         if (method == TSPCalculationMethod.ANT_COLONY_OPTIMISATION) {
             runSimulation();
         } else {
@@ -59,6 +60,7 @@ public class AntGraph extends SalesmanGraph {
 
     public void simulateOneTurn() {
         createAnts();
+        calculateDes();
         for (int i = 0; i + 1 < getVertexList().size(); i++) {
             simulateOneStep();
         }
@@ -89,12 +91,10 @@ public class AntGraph extends SalesmanGraph {
 
     private int getNextIndex(Ant ant) {
         int currentIndex = ant.getCurrentIndex();
-        double s = 0;
-        desirability = new double[getVertexList().size()];
+        desirability = des[currentIndex];
+        double s = 0.0;
         for (int i = 0; i < getVertexList().size(); i++) {
             if (!ant.visited(i)) {
-                double dst = distancesMatrix[currentIndex][i];
-                desirability[i] = Math.pow(Q / dst, dstPower) * Math.pow(pheromoneTrails[currentIndex][i], pheromonePower);
                 s += desirability[i];
             }
         }
@@ -107,8 +107,9 @@ public class AntGraph extends SalesmanGraph {
         for (int i = 0; i < getVertexList().size(); i++) {
             if (!ant.visited(i)) {
                 runningSum += desirability[i];
-                if (runningSum > n)
+                if (runningSum > n) {
                     return i;
+                }
             }
         }
         return 0;
@@ -128,6 +129,18 @@ public class AntGraph extends SalesmanGraph {
                 for (int j = 0; j < pheromoneTrails.length; j++)
                     if (travelled[i][j])
                         pheromoneTrails[i][j] += Q / distancesMatrix[i][j];
+        }
+    }
+
+    private void calculateDes() {
+        des = new double[getVertexList().size()][getVertexList().size()];
+        for (int i = 0; i < getVertexList().size(); i++) {
+            for (int j = 0; j < getVertexList().size(); j++) {
+                if (i != j) {
+                    double dst = distancesMatrix[i][j];
+                    des[i][j] = Math.pow(Q / dst, dstPower) * Math.pow(pheromoneTrails[i][j], pheromonePower);
+                }
+            }
         }
     }
 }

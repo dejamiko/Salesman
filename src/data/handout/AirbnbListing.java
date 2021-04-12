@@ -66,7 +66,7 @@ public class AirbnbListing extends Location {
                          double longitude, String room_type, int price,
                          int minimumNights, int numberOfReviews, String lastReview,
                          double reviewsPerMonth, int calculatedHostListingsCount, int availability365) {
-        super(name + id, latitude, longitude);
+        super(name + " " + id, latitude, longitude);
         this.id = id;
         this.host_id = host_id;
         this.host_name = host_name;

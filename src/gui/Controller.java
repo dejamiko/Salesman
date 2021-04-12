@@ -3,7 +3,6 @@ package gui;
 import graphs.Location;
 import data.handout.AirbnbData;
 import data.handout.AirbnbListing;
-import graphs.SalesmanGraph;
 import graphs.Vertex;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
