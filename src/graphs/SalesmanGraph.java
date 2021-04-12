@@ -427,7 +427,7 @@ public class SalesmanGraph extends Graph {
      *
      * @param list List of vertices.
      */
-    private void drawNewPath(List<Vertex> list) {
+    protected void drawNewPath(List<Vertex> list) {
         removeAllEdges();
         for (int i = 0; i + 1 < list.size(); i++) {
             addEdge(list.get(i), list.get(i + 1));

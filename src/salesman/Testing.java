@@ -4,14 +4,24 @@ import data.cities.CityData;
 import data.handout.AirbnbData;
 import graphs.Location;
 import graphs.SalesmanGraph;
+import salesman.antColony.AntGraph;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Testing {
     public static void main(String[] args) {
-        opt2();
+        ants();
     }
+
+    public static void ants() {
+        List<Location> cities = new ArrayList<>(AirbnbData.getListingList().subList(0, 100));
+        Distances distances = new Distances(DistanceCalculationMethod.LAMBERT);
+        AntGraph graph = new AntGraph(cities, distances);
+        graph.runSimulation();
+        System.out.println(graph.getRoute() + " " + graph.getDist());
+    }
+
 
     public static void bruteForce() {
         long t1 = System.currentTimeMillis();

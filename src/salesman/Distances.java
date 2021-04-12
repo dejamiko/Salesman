@@ -77,6 +77,30 @@ public class Distances {
         return distance;
     }
 
+    public double getShortestDistance(List<? extends Graphable> graphables) {
+        double min = Double.MAX_VALUE;
+        for (int i = 0; i < graphables.size(); i++) {
+            for (int j = i + 1; j < graphables.size(); j++) {
+                double curr = getDistance(graphables.get(i), graphables.get(j));
+                if (min > curr)
+                    min = curr;
+            }
+        }
+        return min;
+    }
+
+    public double getLongestDistance(List<? extends Graphable> graphables) {
+        double max = Double.MIN_VALUE;
+        for (int i = 0; i < graphables.size(); i++) {
+            for (int j = i + 1; j < graphables.size(); j++) {
+                double curr = getDistance(graphables.get(i), graphables.get(j));
+                if (max < curr)
+                    max = curr;
+            }
+        }
+        return max;
+    }
+
     /**
      * Calculate the distance between two locations.
      *

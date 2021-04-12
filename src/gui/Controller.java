@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import salesman.DistanceCalculationMethod;
 import salesman.Distances;
 import salesman.TSPCalculationMethod;
+import salesman.antColony.AntGraph;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -162,7 +163,7 @@ public class Controller {
         setDisabilityOfGuiElements(true);
         new Thread(() -> {
             createListingList(false);
-            SalesmanGraph graph = new SalesmanGraph(listingList, new Distances(distanceMethodChoice.getValue()));
+            AntGraph graph = new AntGraph(listingList, new Distances(distanceMethodChoice.getValue()));
             try {
                 graph.solveTravellingSalesmanProblem(methodChoice.getValue());
                 if (opt2CheckBox.isSelected() && !opt2CheckBox.isDisabled()) {
@@ -411,6 +412,7 @@ public class Controller {
     private void populatePossibleCalculations() {
         possibleCalculations = new HashMap<>();
         possibleCalculations.put(TSPCalculationMethod.BRUTE_FORCE, 10);
+        possibleCalculations.put(TSPCalculationMethod.ANT_COLONY_OPTIMISATION, 200);
         possibleCalculations.put(TSPCalculationMethod.CHRISTOFIDES_MATCHING, 400);
         possibleCalculations.put(TSPCalculationMethod.CHRISTOFIDES_DOUBLE_EDGES, 400);
         possibleCalculations.put(TSPCalculationMethod.IMPROVED_NEAREST_NEIGHBOUR, 200);
