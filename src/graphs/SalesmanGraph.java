@@ -2,6 +2,7 @@ package graphs;
 
 import salesman.Distances;
 import salesman.TSPCalculationMethod;
+import salesman.antColony.AntColony;
 
 import java.util.*;
 
@@ -77,6 +78,10 @@ public class SalesmanGraph extends Graph {
             case CHRISTOFIDES_DOUBLE_EDGES -> christofidesDouble();
             case CHRISTOFIDES_MATCHING -> christofidesNN();
             case BRUTE_FORCE -> bruteForceApproach();
+            case ANT_COLONY_OPTIMISATION -> {
+                AntColony antColony = new AntColony(getVertexList(), getDistances());
+                drawNewPath(antColony.solveTravellingSalesmanProblem());
+            }
         }
     }
 
@@ -427,7 +432,7 @@ public class SalesmanGraph extends Graph {
      *
      * @param list List of vertices.
      */
-    protected void drawNewPath(List<Vertex> list) {
+    private void drawNewPath(List<Vertex> list) {
         removeAllEdges();
         for (int i = 0; i + 1 < list.size(); i++) {
             addEdge(list.get(i), list.get(i + 1));

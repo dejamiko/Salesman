@@ -3,6 +3,7 @@ package gui;
 import graphs.Location;
 import data.handout.AirbnbData;
 import data.handout.AirbnbListing;
+import graphs.SalesmanGraph;
 import graphs.Vertex;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -19,7 +20,6 @@ import javafx.stage.Stage;
 import salesman.DistanceCalculationMethod;
 import salesman.Distances;
 import salesman.TSPCalculationMethod;
-import salesman.antColony.AntGraph;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -48,7 +48,7 @@ public class Controller {
     @FXML
     private Button runButton;
     @FXML
-    private Button newListingsButton;
+    private Button newLocationssButton;
     @FXML
     private Button saveToFileButton;
     @FXML
@@ -61,18 +61,20 @@ public class Controller {
     private Group group;
     private HashMap<TSPCalculationMethod, Integer> possibleCalculations;
 
-    // All lists responsible for holding listings
-    private List<Location> allListings;
-    private List<Location> listingList;
+    // All lists responsible for holding locations
+    private List<Location> allLocations;
+    private List<Location> locationList;
     private List<Location> resultList;
+
+    private SalesmanGraph salesmanGraph;
 
     /**
      * Constructor for the controller.
      */
     public Controller() {
         routeDrawn = false;
-        loadListings();
-        listingList = new ArrayList<>();
+        loadLocations();
+        locationList = new ArrayList<>();
     }
 
     /**
@@ -88,7 +90,7 @@ public class Controller {
             if (routeDrawn)
                 drawPolygon(resultList);
             else
-                drawListingsPoints(listingList);
+                drawLocationsPoints(locationList);
         };
         stage.widthProperty().addListener(stageSizeListener);
         stage.heightProperty().addListener(stageSizeListener);
@@ -112,14 +114,15 @@ public class Controller {
         bottomLabel.setVisible(false);
         sliderValue = (int) Math.round(slider.getValue());
         slider.setOnMouseReleased(e -> sliderMoved());
+        distanceMethodChoice.setOnMouseReleased(e -> createLocationsList(false));
         slider.setValue(slider.getMax());
         sliderMoved();
-        // Create the listing list
-        createListingList(true);
+        // Create the location list
+        createLocationsList(true);
         // Set the stage when initialising is completed
         Platform.runLater(() -> {
             setStage((Stage) saveToFileButton.getScene().getWindow());
-            drawListingsPoints(listingList);
+            drawLocationsPoints(locationList);
         });
     }
 
@@ -161,14 +164,15 @@ public class Controller {
         setBottomLabel("Calculating...", 0.0);
         setDisabilityOfGuiElements(true);
         new Thread(() -> {
-            createListingList(false);
-            AntGraph graph = new AntGraph(listingList, new Distances(distanceMethodChoice.getValue()));
+            createLocationsList(false);
+            if (group == null)
+                salesmanGraph = new SalesmanGraph(locationList, new Distances(distanceMethodChoice.getValue()));
             try {
-                graph.solveTravellingSalesmanProblem(methodChoice.getValue());
+                salesmanGraph.solveTravellingSalesmanProblem(methodChoice.getValue());
                 if (opt2CheckBox.isSelected() && !opt2CheckBox.isDisabled()) {
-                    graph.opt2();
+                    salesmanGraph.opt2();
                 }
-                resultList = graph.getRoute().stream().map(Vertex::getContents).collect(Collectors.toList());
+                resultList = salesmanGraph.getRoute().stream().map(Vertex::getContents).collect(Collectors.toList());
             } catch (IllegalArgumentException e) {
                 Alert alert = new Alert(Alert.AlertType.ERROR);
                 alert.setHeaderText("There was a problem calculating the route.");
@@ -176,7 +180,7 @@ public class Controller {
                 alert.showAndWait();
             }
             Platform.runLater(() -> {
-                setBottomLabel("Distance calculated: ", graph.getDist());
+                setBottomLabel("Distance calculated: ", salesmanGraph.getDist());
                 drawPolygon(resultList);
                 setDisabilityOfGuiElements(false);
             });
@@ -192,21 +196,21 @@ public class Controller {
     private void setDisabilityOfGuiElements(boolean disable) {
         slider.setDisable(disable);
         runButton.setDisable(disable);
-        newListingsButton.setDisable(disable);
+        newLocationssButton.setDisable(disable);
         saveToFileButton.setDisable(disable);
     }
 
     /**
-     * Create the listing list for all calculations with a given size.
-     * Either use all listings or the favourite ones.
+     * Create the location list for all calculations with a given size.
      *
      * @param randomise Whether the list is to be randomised.
      */
-    private void createListingList(boolean randomise) {
+    private void createLocationsList(boolean randomise) {
         if (randomise) {
-            Collections.shuffle(allListings);
+            Collections.shuffle(allLocations);
         }
-        listingList = new ArrayList<>(allListings.subList(0, Math.min(sliderValue, allListings.size())));
+        locationList = new ArrayList<>(allLocations.subList(0, Math.min(sliderValue, allLocations.size())));
+        salesmanGraph = new SalesmanGraph(locationList, new Distances(distanceMethodChoice.getValue()));
     }
 
     /**
@@ -224,17 +228,17 @@ public class Controller {
         group = new Group();
         group.getChildren().add(route);
         middle.setCenter(group);
-        drawListingsPoints(locations);
+        drawLocationsPoints(locations);
         routeDrawn = true;
     }
 
     /**
-     * Draw points for every listing.
+     * Draw points for every location.
      *
      * @param locations The list of the locations to be drawn.
      */
     @FXML
-    private void drawListingsPoints(List<Location> locations) {
+    private void drawLocationsPoints(List<Location> locations) {
         double[] coordinates = getCoordinates(locations);
         for (int i = 0; i < coordinates.length; i += 2) {
             group.getChildren().add(new Circle(coordinates[i], coordinates[i + 1], 3));
@@ -243,28 +247,28 @@ public class Controller {
     }
 
     /**
-     * If the slider changed value, create a list of listings and draw the points.
+     * If the slider changed value, create a list of locations and draw the points.
      */
     @FXML
     private void sliderMoved() {
         if (Math.round((int) slider.getValue()) != sliderValue) {
             group = new Group();
             sliderValue = Math.round((int) slider.getValue());
-            createListingList(false);
-            drawListingsPoints(listingList);
+            createLocationsList(false);
+            drawLocationsPoints(locationList);
             routeDrawn = false;
         }
     }
 
     /**
-     * Get new listings list and draw them as points.
+     * Get new locations list and draw them as points.
      */
     @FXML
-    private void newListings() {
-        createListingList(true);
+    private void newLocations() {
+        createLocationsList(true);
         routeDrawn = false;
         group = new Group();
-        drawListingsPoints(listingList);
+        drawLocationsPoints(locationList);
     }
 
     /**
@@ -315,8 +319,8 @@ public class Controller {
     /**
      * Load all the listings from the AirbnbData.
      */
-    private void loadListings() {
-        allListings = new ArrayList<>(AirbnbData.getListingList());
+    private void loadLocations() {
+        allLocations = new ArrayList<>(AirbnbData.getListingList());
     }
 
     /**
@@ -406,12 +410,12 @@ public class Controller {
 
     /**
      * Populate the hashmap that keeps the method to number of
-     * listings pairs.
+     * locations pairs.
      */
     private void populatePossibleCalculations() {
         possibleCalculations = new HashMap<>();
         possibleCalculations.put(TSPCalculationMethod.BRUTE_FORCE, 10);
-        possibleCalculations.put(TSPCalculationMethod.ANT_COLONY_OPTIMISATION, 200);
+        possibleCalculations.put(TSPCalculationMethod.ANT_COLONY_OPTIMISATION, 300);
         possibleCalculations.put(TSPCalculationMethod.CHRISTOFIDES_MATCHING, 400);
         possibleCalculations.put(TSPCalculationMethod.CHRISTOFIDES_DOUBLE_EDGES, 400);
         possibleCalculations.put(TSPCalculationMethod.IMPROVED_NEAREST_NEIGHBOUR, 200);
