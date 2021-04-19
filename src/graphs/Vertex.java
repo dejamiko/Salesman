@@ -30,7 +30,7 @@ public class Vertex implements Graphable {
     /**
      * Add an incident edge.
      *
-     * @param another A vertex this one is adjacent to.
+     * @param another  A vertex this one is adjacent to.
      * @param distance The distance between the vertices.
      */
     public void addEdge(Vertex another, double distance) {

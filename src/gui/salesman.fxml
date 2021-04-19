@@ -71,7 +71,7 @@
                     <right>
                         <VBox alignment="BOTTOM_CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
                             <children>
-                                <Button fx:id="newLocationssButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#newLocations" styleClass="button-not-pink" text="Randomise" textAlignment="CENTER">
+                                <Button fx:id="newLocationsButton" alignment="CENTER" contentDisplay="CENTER" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#newLocations" styleClass="button-not-pink" text="Randomise" textAlignment="CENTER">
                                     <font>
                                         <Font size="14.0" />
                                     </font>

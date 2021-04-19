@@ -48,7 +48,7 @@ public class Controller {
     @FXML
     private Button runButton;
     @FXML
-    private Button newLocationssButton;
+    private Button newLocationsButton;
     @FXML
     private Button saveToFileButton;
     @FXML
@@ -196,7 +196,7 @@ public class Controller {
     private void setDisabilityOfGuiElements(boolean disable) {
         slider.setDisable(disable);
         runButton.setDisable(disable);
-        newLocationssButton.setDisable(disable);
+        newLocationsButton.setDisable(disable);
         saveToFileButton.setDisable(disable);
     }
 

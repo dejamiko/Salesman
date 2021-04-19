@@ -21,6 +21,7 @@ public class Distances {
     private final boolean usingLambert;
     private final Map<Set<Location>, Double> pairwiseDistances;
 
+
     /**
      * Initialise the object and set a boolean flag to see
      * what method of calculating distance is to be used.
@@ -31,6 +32,8 @@ public class Distances {
         usingLambert = !method.equals(DistanceCalculationMethod.HAVERSINE);
         pairwiseDistances = new HashMap<>();
     }
+
+
 
     public double getPathDistance(List<? extends Graphable> route) {
         double ans = 0;
